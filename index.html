@@ -4,8 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1C6E8C">
-<title>Мои деньги · до Тбилиси</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🇬🇪</text></svg>">
+<title>Мои деньги</title>
+<link rel="icon" type="image/png" href="icon-512.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Мои деньги">
+<meta name="application-name" content="Мои деньги">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Onest:wght@400;500;600&display=swap" rel="stylesheet">
@@ -145,6 +151,12 @@ details[open]>summary{margin-bottom:10px}
 .debt .x{border:0;background:none;color:var(--muted);font-size:20px;padding:0 6px}
 .dline{display:flex;justify-content:space-between;padding:6px 0;font-size:14.5px;color:var(--pom)}
 .dline.paid{color:var(--muted);text-decoration:line-through}
+.cstat{margin:0 0 10px;font-size:14px;padding:9px 12px;border-radius:10px;background:var(--soft)}
+.cstat.ok{background:color-mix(in srgb,var(--olive) 16%,var(--paper))}
+.cstat.bad{background:color-mix(in srgb,var(--pom) 12%,var(--paper));color:var(--pom)}
+.howto{margin-top:10px}
+.howto ol{margin:6px 0 0;padding-left:20px;font-size:14px;line-height:1.45}
+.howto li{margin:4px 0}
 .tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .tools button,.tools label{border:1px solid var(--line);background:none;color:var(--ink);border-radius:10px;padding:9px 12px;font-size:14px;cursor:pointer}
 .tools input{display:none}
@@ -216,9 +228,14 @@ label{font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:4
 <!-- ===== СТАРТОВЫЙ ЭКРАН ===== -->
 <div id="setup" class="setup" hidden>
   <div class="setup-in">
-    <p class="brand">🇬🇪 До Тбилиси</p>
+    <p class="brand">💵 Мои деньги</p>
     <h1>С чего начинаем</h1>
     <p class="muted">Впишите, сколько денег у вас сейчас на каждом счёте. Пустое поле — это 0.</p>
+    <div class="card">
+      <h2>☁️ Уже вели учёт на другом устройстве?</h2>
+      <p class="muted small">Подключите облако, и все записи загрузятся сами. Если это первый запуск — пропустите.</p>
+      <div id="setupCloudSlot"></div>
+    </div>
     <div class="card">
       <h2>Деньги сейчас</h2>
       <div class="grid2" id="setupAccs"></div>
@@ -249,7 +266,7 @@ label{font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:4
 <!-- ===== ПРИЛОЖЕНИЕ ===== -->
 <div id="app" class="app" hidden>
   <nav class="nav" id="nav" aria-label="Разделы">
-    <p class="brand">🇬🇪 До Тбилиси</p>
+    <p class="brand">💵 Мои деньги</p>
     <button data-v="home" aria-current="page"><span class="ic">🏠</span><span>Обзор</span></button>
     <button data-v="accs"><span class="ic">💳</span><span>Счета</span></button>
     <button data-v="add" class="plus"><span class="ic">＋</span><span>Записать</span></button>
@@ -374,8 +391,37 @@ label{font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:4
           </div>
         </div>
         <div class="card">
-          <h2>Данные</h2>
-          <p class="muted small">Всё хранится в этом браузере. Сохраняйте копию, чтобы не потерять или перенести на другое устройство.</p>
+          <h2>☁️ Облако</h2>
+          <p class="muted small">Записи сохраняются в ваш приватный репозиторий на GitHub. Не пропадут, если удалить иконку или сменить телефон, и одинаковые на телефоне и компьютере.</p>
+          <div id="accsCloudSlot"><div id="cloudForm">
+            <p class="cstat" id="cloudStatus">Не подключено — данные только в этом браузере.</p>
+            <div id="cloudFields">
+              <div class="grid2">
+                <label>Ваш ник на GitHub<input id="cOwner" autocomplete="off" autocapitalize="off" value="damir12345678"></label>
+                <label>Репозиторий для данных<input id="cRepo" autocomplete="off" autocapitalize="off" value="rashod-data"></label>
+              </div>
+              <label style="margin-top:8px">Токен<input id="cToken" type="password" autocomplete="off" autocapitalize="off" placeholder="github_pat_…"></label>
+              <button class="primary" id="cConnect" style="width:100%;margin-top:10px">Подключить облако</button>
+              <details class="howto">
+                <summary>Как получить токен (2 минуты)</summary>
+                <ol>
+                  <li>На github.com создайте <b>новый приватный</b> репозиторий <b>rashod-data</b> (Private, галочка «Add a README»).</li>
+                  <li>Аватарка → Settings → Developer settings → Personal access tokens → <b>Fine-grained tokens</b> → Generate new token.</li>
+                  <li>Expiration: <b>No expiration</b> (или год). Repository access: <b>Only select repositories</b> → rashod-data.</li>
+                  <li>Permissions → Repository permissions → <b>Contents: Read and write</b>.</li>
+                  <li>Generate token, скопируйте и вставьте сюда. Никому его не показывайте.</li>
+                </ol>
+              </details>
+            </div>
+            <div id="cloudOn" hidden>
+              <div class="tools"><button id="cSync">Синхронизировать сейчас</button><button id="cOff">Отключить на этом устройстве</button></div>
+            </div>
+            <p class="err" id="cloudErr"></p>
+          </div></div>
+        </div>
+        <div class="card">
+          <h2>Копия файлом</h2>
+          <p class="muted small">Запасной вариант: скачать все данные одним файлом и загрузить обратно.</p>
           <div class="tools">
             <button id="exp">Скачать копию</button>
             <label>Загрузить копию<input id="imp" type="file" accept="application/json,.json"></label>
@@ -491,10 +537,91 @@ if (!db){
     }
   } catch(e){}
 }
-db.debts ??= []; db.ops ??= []; db.oblig ??= {}; db.names ??= {}; db.rates ??= {try:48, uah:43}; db.start ??= {};
-ACCS.forEach(a=>{ db.start[a.id] ??= 0; });
-if (!Array.isArray(db.prep)) db.prep = DEFAULT_PREP.map(n=>({id:uid(), name:n, amount:null, paid:false, acc:"card_try"}));
-function save(){ try { localStorage.setItem(KEY, JSON.stringify(db)); } catch(e){} }
+function normalize(d){
+  d.debts ??= []; d.ops ??= []; d.oblig ??= {}; d.names ??= {}; d.rates ??= {try:48, uah:43}; d.start ??= {};
+  ACCS.forEach(a=>{ d.start[a.id] ??= 0; });
+  if (!Array.isArray(d.prep)) d.prep = DEFAULT_PREP.map(n=>({id:uid(), name:n, amount:null, paid:false, acc:"card_try"}));
+  return d;
+}
+normalize(db);
+function save(){ db.updatedAt = Date.now(); try { localStorage.setItem(KEY, JSON.stringify(db)); } catch(e){} schedulePush(); }
+
+/* ---------- облако: приватный репозиторий GitHub ---------- */
+const CLOUD_KEY = "moi-dengi-cloud";
+let cloud = null; try { cloud = JSON.parse(localStorage.getItem(CLOUD_KEY)); } catch(e){}
+let cloudSha = null, pushTimer = null, pushing = false, pendingPush = false;
+const cloudUrl = () => `https://api.github.com/repos/${encodeURIComponent(cloud.owner)}/${encodeURIComponent(cloud.repo)}/contents/data.json`;
+const cloudHeaders = () => ({Authorization:"Bearer "+cloud.token, Accept:"application/vnd.github+json"});
+function cloudErrText(st){
+  return st===401 ? "Токен не подходит или истёк." : st===403 ? "Нет доступа: у токена должно быть Contents — Read and write для этого репозитория."
+    : st===404 ? "Репозиторий не найден: проверьте ник и название, и что токен выдан именно на него." : "Ошибка связи с GitHub ("+st+").";
+}
+async function cloudGet(){
+  const r = await fetch(cloudUrl()+"?t="+Date.now(), {headers:cloudHeaders(), cache:"no-store"});
+  if (r.status===404){
+    // файла ещё нет — проверим, что сам репозиторий доступен
+    const rr = await fetch(`https://api.github.com/repos/${encodeURIComponent(cloud.owner)}/${encodeURIComponent(cloud.repo)}`, {headers:cloudHeaders(), cache:"no-store"});
+    if (!rr.ok) throw new Error(cloudErrText(rr.status));
+    return {data:null, sha:null};
+  }
+  if (!r.ok) throw new Error(cloudErrText(r.status));
+  const j = await r.json();
+  const bytes = Uint8Array.from(atob((j.content||"").replace(/\s/g,"")), c=>c.charCodeAt(0));
+  return {data: JSON.parse(new TextDecoder().decode(bytes)), sha: j.sha};
+}
+async function cloudPut(){
+  const bytes = new TextEncoder().encode(JSON.stringify(db));
+  let bin = ""; for (let i=0; i<bytes.length; i+=0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i+0x8000));
+  const body = {message:"Мои деньги: обновление", content:btoa(bin)}; if (cloudSha) body.sha = cloudSha;
+  const r = await fetch(cloudUrl(), {method:"PUT", headers:{...cloudHeaders(), "Content-Type":"application/json"}, body:JSON.stringify(body)});
+  if (r.status===409 || r.status===422) return "conflict";
+  if (!r.ok) throw new Error(cloudErrText(r.status));
+  cloudSha = (await r.json()).content.sha; return "ok";
+}
+function setCloud(kind, msg){
+  const el = document.getElementById("cloudStatus"); if (!el) return;
+  const hm = new Date().toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"});
+  el.className = "cstat" + (kind==="ok"?" ok":kind==="err"?" bad":"");
+  el.textContent = kind==="ok" ? "☁️ Сохранено в облаке · "+hm : kind==="sync" ? "☁️ Синхронизация…" : kind==="err" ? "⚠️ "+msg : "Не подключено — данные только в этом браузере.";
+  document.getElementById("cloudFields").hidden = !!cloud;
+  document.getElementById("cloudOn").hidden = !cloud;
+}
+function schedulePush(){ if (!cloud) return; clearTimeout(pushTimer); pushTimer = setTimeout(pushNow, 1200); }
+async function pushNow(){
+  if (!cloud) return;
+  if (pushing){ pendingPush = true; return; }
+  pushing = true; setCloud("sync");
+  try{
+    if (cloudSha===null){ const rem = await cloudGet(); cloudSha = rem.sha; }
+    let res = await cloudPut();
+    if (res==="conflict"){
+      const rem = await cloudGet(); cloudSha = rem.sha;
+      if (rem.data && (rem.data.updatedAt||0) > (db.updatedAt||0)) applyRemote(rem.data);
+      else if ((await cloudPut())==="conflict") throw new Error("Не получилось сохранить, попробуйте «Синхронизировать сейчас».");
+    }
+    setCloud("ok");
+  }catch(e){ setCloud("err", e.message || "Нет интернета, сохраню позже."); }
+  pushing = false;
+  if (pendingPush){ pendingPush = false; pushNow(); }
+}
+async function pullNow(){
+  if (!cloud) return;
+  setCloud("sync");
+  try{
+    const rem = await cloudGet(); cloudSha = rem.sha;
+    const r = rem.data ? (rem.data.updatedAt||0) : -1, l = db.updatedAt||0;
+    if (rem.data && r > l) applyRemote(rem.data);
+    else if (r < l || !rem.data) { if (db.setup) await pushNow(); else setCloud("ok"); }
+    else setCloud("ok");
+  }catch(e){ setCloud("err", e.message || "Нет интернета."); }
+}
+function applyRemote(d){
+  db = normalize(d);
+  try { localStorage.setItem(KEY, JSON.stringify(db)); } catch(e){}
+  if (db.setup){ document.getElementById("setup").hidden = true; document.getElementById("app").hidden = false; mountCloud("accsCloudSlot"); render(); }
+  setCloud("ok"); toast("Данные загружены из облака ☁️");
+}
+function mountCloud(slot){ document.getElementById(slot).appendChild(document.getElementById("cloudForm")); }
 
 /* ---------- helpers ---------- */
 const $ = id => document.getElementById(id);
@@ -506,7 +633,7 @@ const perUsd = c => c==="usd" ? 1 : (c==="try" ? db.rates.try : db.rates.uah);
 const conv = (v, from, to) => v / perUsd(from) * perUsd(to);
 const toTry = (v, c) => conv(v, c, "try");
 const nf = (n, d=0) => (Math.round(n*10**d)/10**d).toLocaleString("ru-RU");
-const money = (v, c) => c==="usd" ? (v<0?"−":"")+"$"+nf(Math.abs(v), Math.abs(v)<100&&v%1?2:0) : nf(v)+" "+SYM[c];
+const money = (v, c) => c==="usd" ? (v<0?"−":"")+"$"+nf(Math.abs(v), Math.abs(v)<10&&v%1?2:0) : nf(v)+" "+SYM[c];
 const fmt = v => nf(v)+" ₺";
 const usdOfTry = v => money(v/db.rates.try, "usd");
 const daysIn = key => { const [y,m] = key.split("-").map(Number); return new Date(y,m,0).getDate(); };
@@ -969,6 +1096,8 @@ function drawDebts(){
 }
 function openSetup(){
   $("app").hidden = true; $("setup").hidden = false;
+  $("setupCloudSlot").closest(".card").hidden = !!db.setup;
+  if (!db.setup) mountCloud("setupCloudSlot");
   const bal = calc().bal;
   $("setupAccs").innerHTML = ACCS.map(a=>`<label>${a.name}, ${SYM[a.cur]}<input type="number" inputmode="decimal" step="any" data-sa="${a.id}" value="${db.setup && bal[a.id] ? Math.round(bal[a.id]*100)/100 : ""}" placeholder="0"></label>`).join("");
   const mk = T().slice(0,7), hasSal = db.ops.some(o=>o.type==="inc" && o.kind==="salary" && o.date.startsWith(mk));
@@ -1003,11 +1132,38 @@ $("setupDone").addEventListener("click", ()=>{
   db.debts = draftDebts.filter(d=>d.amount>0);
   const gv = Number($("goalIn").value); db.goal = gv>0 ? gv : 3000;
   db.setup = true; db.setupDate ??= T(); save();
+  mountCloud("accsCloudSlot");
   $("setup").hidden = true; $("app").hidden = false; render(); setView("home"); toast("Сохранено ✓");
 });
 $("editSetup").addEventListener("click", openSetup);
 
-if (db.setup) { $("app").hidden = false; render(); setView("home"); } else openSetup();
+$("cConnect").addEventListener("click", async ()=>{
+  const owner=$("cOwner").value.trim(), repo=$("cRepo").value.trim(), token=$("cToken").value.trim();
+  $("cloudErr").textContent="";
+  if (!owner || !repo || !token){ $("cloudErr").textContent="Заполните ник, репозиторий и токен."; return; }
+  cloud = {owner, repo, token}; cloudSha = null;
+  $("cConnect").disabled = true; $("cConnect").textContent = "Проверяю…";
+  try{
+    await cloudGet();
+    try { localStorage.setItem(CLOUD_KEY, JSON.stringify(cloud)); } catch(e){}
+    $("cToken").value = "";
+    await pullNow();
+    if (!$("app").hidden || db.setup) toast("Облако подключено ☁️");
+  }catch(e){ cloud = null; $("cloudErr").textContent = e.message || "Не получилось подключиться."; setCloud("off"); }
+  $("cConnect").disabled = false; $("cConnect").textContent = "Подключить облако";
+});
+$("cSync").addEventListener("click", pullNow);
+$("cOff").addEventListener("click", e=>{
+  const b=e.currentTarget;
+  if (!b.dataset.armed){ b.dataset.armed="1"; b.textContent="Точно? Нажмите ещё раз"; setTimeout(()=>{ delete b.dataset.armed; b.textContent="Отключить на этом устройстве"; },3000); return; }
+  cloud=null; cloudSha=null; try{ localStorage.removeItem(CLOUD_KEY); }catch(_){}
+  delete b.dataset.armed; b.textContent="Отключить на этом устройстве"; setCloud("off");
+});
+document.addEventListener("visibilitychange", ()=>{ if (document.visibilityState==="visible") pullNow(); });
+
+if (db.setup) { mountCloud("accsCloudSlot"); $("app").hidden = false; render(); setView("home"); } else openSetup();
+setCloud(cloud ? "ok" : "off");
+if (cloud) pullNow();
 </script>
 </body>
 </html>
