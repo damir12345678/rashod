@@ -225,10 +225,10 @@ label{font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:4
     </div>
     <div class="card" id="setupSalaryCard">
       <h2>Зарплата в этом месяце уже пришла?</h2>
-      <p class="muted small">Если да и она уже лежит на счёте выше, впишите её сумму и счёт. Сайт отметит, что зарплата за месяц пришла, и не будет ждать её второй раз. Вычитать её из остатков выше не нужно.</p>
+      <p class="muted small">Если да, впишите сумму и куда она пришла. Сайт отметит, что зарплата за месяц есть, и не будет ждать её второй раз. Остатки выше останутся ровно такими, как вы вписали, даже если зарплату уже перевели на другой счёт.</p>
       <div class="grid2">
         <label>Сумма<input id="sSalAmt" type="number" inputmode="decimal" min="0" step="any" placeholder="0 — ещё не пришла"></label>
-        <label>На каком счёте<select id="sSalAcc"></select></label>
+        <label>Куда пришла<select id="sSalAcc"></select></label>
       </div>
     </div>
     <div class="card">
@@ -991,9 +991,6 @@ $("setupDone").addEventListener("click", ()=>{
   const before = calc().bal, entered = {};
   document.querySelectorAll("[data-sa]").forEach(inp=>{ const v=Number(String(inp.value).replace(",",".")); entered[inp.dataset.sa] = isFinite(v)?v:0; });
   const sal = Number(String($("sSalAmt").value).replace(",",".")), salAcc = $("sSalAcc").value;
-  if (!$("setupSalaryCard").hidden && sal>0 && entered[salAcc] < sal - 0.005){
-    $("setupErr").textContent = "На счёте «"+accOf(salAcc).name+"» вписано меньше, чем зарплата. Проверьте суммы."; return;
-  }
   $("setupErr").textContent = "";
   // вписанные суммы — это текущие остатки
   ACCS.forEach(a=>{ db.start[a.id] = (+db.start[a.id]||0) + (entered[a.id] - (before[a.id]||0)); });
